@@ -369,7 +369,8 @@ handleRapiRead() {
 
 void on_rapi_event()
 {
-  if(!strcmp(rapiSender.getToken(0), "$ST")) {
+  if(!strcmp(rapiSender.getToken(0), "$ST") ||
+     !strcmp(rapiSender.getToken(0), "$AT")) {
     const char *val = rapiSender.getToken(1);
     DBUGVAR(val);
 

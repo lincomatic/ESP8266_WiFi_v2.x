@@ -249,7 +249,9 @@ start:
     } else if (!strcmp(_tokens[0], "$NK")) {
       return 1;
     } else if (!strcmp(_tokens[0],"$WF") ||
-               !strcmp(_tokens[0],"$ST"))
+               !strcmp(_tokens[0],"$ST") ||
+               !strcmp(_tokens[0],"$AT") ||
+               !strcmp(_tokens[0],"$AB"))
     {
       // async EVSE state transition or WiFi event
       if(nullptr != _onRapiEvent) {

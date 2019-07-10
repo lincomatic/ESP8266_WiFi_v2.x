@@ -139,7 +139,7 @@ loop() {
         {
           const char *val = rapiSender.getToken(1);
           DBUGVAR(val);
-          state = strtol(val, NULL, 10);
+          state = strtol(val, NULL, (rapiSender.getTokenCnt() > 3) ? 16 : 10);
           DBUGVAR(state);
         }
       } else {
