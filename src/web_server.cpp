@@ -101,7 +101,7 @@ bool requestPreProcess(AsyncWebServerRequest *request, AsyncResponseStream *&res
 
   if(wifi_mode_is_sta() && www_username!="" &&
      false == request->authenticate(www_username.c_str(), www_password.c_str())) {
-    request->requestAuthentication(esp_hostname);
+    request->requestAuthentication(esp_hostname.c_str());
     return false;
   }
 
@@ -391,6 +391,26 @@ handleSaveAdmin(AsyncWebServerRequest *request) {
 }
 
 // -------------------------------------------------------------------
+// Save advanced settings
+// url: /saveadvanced
+// -------------------------------------------------------------------
+void
+handleSaveAdvanced(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response;
+  if(false == requestPreProcess(request, response, CONTENT_TYPE_TEXT)) {
+    return;
+  }
+
+  String qhostname = request->arg("hostname");
+
+  config_save_advanced(qhostname);
+
+  response->setCode(200);
+  response->print("saved");
+  request->send(response);
+}
+
+// -------------------------------------------------------------------
 // Save the Ohm keyto EEPROM
 // url: /handleSaveOhmkey
 // -------------------------------------------------------------------
@@ -567,6 +587,7 @@ handleConfig(AsyncWebServerRequest *request) {
     s += dummyPassword;
   }
   s += "\",";
+  s += "\"hostname\":\"" + esp_hostname + "\",";
   s += "\"ohm_enabled\":" + String(config_ohm_enabled() ? "true" : "false");
   s += "}";
 
@@ -711,7 +732,8 @@ handleUpdateUpload(AsyncWebServerRequest *request, String filename, size_t index
     DBUGF("Update Start: %s", filename.c_str());
 
     DBUGVAR(data[0]);
-    int command = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+    //int command = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+    int command = U_FLASH;
     size_t updateSize = U_FLASH == command ?
       (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000 :
       ((size_t) &_SPIFFS_end - (size_t) &_SPIFFS_start);
@@ -934,6 +956,7 @@ web_server_setup() {
   server.on("/saveemoncms", handleSaveEmoncms);
   server.on("/savemqtt", handleSaveMqtt);
   server.on("/saveadmin", handleSaveAdmin);
+  server.on("/saveadvanced", handleSaveAdvanced);
   server.on("/saveohmkey", handleSaveOhmkey);
   server.on("/reset", handleRst);
   server.on("/restart", handleRestart);
